@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrackIT</title>
+    <link rel="stylesheet" href="./assets/css/reset.css">
+    <link rel="stylesheet" href="./assets/css/main.css">
+    <link rel="icon" href="./assets/images/TrackIT_icon.ico" type="image/x-icon">
+</head>
+<body>
+    <header id="header">
+        <div class="header__logo-container">
+            <img src="./assets/images/TrackIT_logo.png" alt="Logo do TrackIT" id="logo">
+            <h1>TrackIT</h1>
+        </div>
+        <button id="logout_btn" onclick="window.location.href='index.html'">Sair</button>
+    </header>
+
+    <main id="dashboard_container">
+        <section class="dashboard_content">
+            <h2>Gerenciamento de Equipamentos</h2>
+            <button id="add_equipment_btn" onclick="openModal('create')">Adicionar Equipamento</button>
+            <table id="equipment_table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Tipo</th>
+                        <th>Status</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="equipment_list"></tbody>
+            </table>
+        </section>
+
+        <!-- Modal para cadastro/edição -->
+        <div id="equipment_modal" class="modal">
+            <div class="modal_content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2 id="modal_title">Adicionar Equipamento</h2>
+                <form id="equipment_form">
+                    <div class="input">
+                        <label for="name">Nome:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="input">
+                        <label for="type">Tipo:</label>
+                        <input type="text" id="type" name="type" required>
+                    </div>
+                    <div class="input">
+                        <label for="status">Status:</label>
+                        <select id="status" name="status" required>
+                            <option value="Disponível">Disponível</option>
+                            <option value="Em Manutenção">Em Manutenção</option>
+                            <option value="Emprestado">Emprestado</option>
+                        </select>
+                    </div>
+                    <input type="hidden" id="equipment_id">
+                    <button type="submit">Salvar</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer">
+        <p>© 2025 TrackIT. Todos os direitos reservados.</p>
+        <p>Desenvolvido por <a href="https://www.linkedin.com/in/lazaro-rocha-dev/" target="_blank" rel="noreferrer noopener">Lázaro Rocha</a></p>
+    </footer>
+    <script src="./assets/js/script.js"></script>
+</body>
+</html>

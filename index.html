@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrackIT</title>
+    <link rel="stylesheet" href="./assets/css/reset.css">
+    <link rel="stylesheet" href="./assets/css/main.css">
+    <link rel="icon" href="./assets/images/TrackIT_icon.ico" type="image/x-icon">
+</head>
+<body>
+    <header>
+        <img src="./assets/images/TrackIT_logo.png" alt="Logo do TrackIT" id="logo">
+        <h1>TrackIT</h1>
+    </header>
+
+    <main id="main__container">
+        <section class="form_container">
+            <form id="login_form">
+                <h2>LOGIN</h2>
+                <div class="input_container">  
+                    <div class="input">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required placeholder="Digite seu email">
+                    </div>
+                    <div class="input">
+                        <label for="password">Senha:</label>
+                        <input type="password" id="senha" name="senha" required placeholder="Digite sua senha">
+                    </div>
+                </div>
+                <button type="submit" id="botao_submit" onclick="entrar()">Entrar</button>
+        </section>
+    </main>
+
+    <footer id="footer">
+        <p>&copy; 2025 TrackIT. Todos os direitos reservados.</p>
+        <p>Desenvolvido por <a href="https://www.linkedin.com/in/lazaro-rocha-dev/" target="_blank" rel="noreferrer noopener">Lázaro Rocha</a></p>
+    </footer>
+    <script src="./assets/js/script.js"></script>
+</body>
+</html>
