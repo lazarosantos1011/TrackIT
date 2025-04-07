@@ -1,6 +1,6 @@
 // Dados iniciais (simulação de banco de dados com localStorage)
-let equipments = JSON.parse(localStorage.getItem('equipments')) || [];
-let currentId = equipments.length ? Math.max(...equipments.map(e => e.id)) + 1 : 1;
+let equipamentos = JSON.parse(localStorage.getItem('equipamentos')) || [];
+let currentId = equipamentos.length ? Math.max(...equipamentos.map(e => e.id)) + 1 : 1;
 let currentPage = 1;
 const itemsPerPage = 5;
 let metricsChart;
@@ -8,9 +8,9 @@ let availabilityChart;
 
 // Função para carregar métricas e atualizar os gráficos
 function carregarMetricas() {
-    const total = equipments.length;
-    const available = equipments.filter(e => e.status === 'Disponível').length;
-    const maintenance = equipments.filter(e => e.status === 'Em Manutenção').length;
+    const total = equipamentos.length;
+    const available = equipamentos.filter(e => e.status === 'Disponível').length;
+    const maintenance = equipamentos.filter(e => e.status === 'Em Manutenção').length;
 
     // Atualizar os números no gráfico de barras
     if (metricsChart) {
@@ -89,9 +89,9 @@ function carregarListaDeEquipamentos() {
     tbody.innerHTML = '';
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
-    const paginatedEquipments = equipments.slice(start, end);
+    const paginatedequipamentos = equipamentos.slice(start, end);
 
-    paginatedEquipments.forEach(equipment => {
+    paginatedequipamentos.forEach(equipment => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${equipment.id}</td>
@@ -106,28 +106,28 @@ function carregarListaDeEquipamentos() {
         tbody.appendChild(row);
     });
 
-    document.getElementById('page_info').textContent = `Página ${currentPage} de ${Math.ceil(equipments.length / itemsPerPage)}`;
+    document.getElementById('page_info').textContent = `Página ${currentPage} de ${Math.ceil(equipamentos.length / itemsPerPage)}`;
     carregarMetricas();
 }
 
 // Função para buscar equipamentos
 function filtrarEquipamentos() {
     const query = document.getElementById('search_input').value.toLowerCase();
-    equipments = JSON.parse(localStorage.getItem('equipments')) || [];
-    equipments = equipments.filter(e => e.name.toLowerCase().includes(query) || e.type.toLowerCase().includes(query));
+    equipamentos = JSON.parse(localStorage.getItem('equipamentos')) || [];
+    equipamentos = equipamentos.filter(e => e.name.toLowerCase().includes(query) || e.type.toLowerCase().includes(query));
     currentPage = 1;
     carregarListaDeEquipamentos();
 }
 
 // Função para ordenar equipamentos
 function ordernarTabela(column) {
-    equipments.sort((a, b) => (a[column] > b[column] ? 1 : -1));
+    equipamentos.sort((a, b) => (a[column] > b[column] ? 1 : -1));
     carregarListaDeEquipamentos();
 }
 
 // Paginação
 function proximaPagina() {
-    if (currentPage * itemsPerPage < equipments.length) {
+    if (currentPage * itemsPerPage < equipamentos.length) {
         currentPage++;
         carregarListaDeEquipamentos();
     }
@@ -155,7 +155,7 @@ function abrirModal(mode, id = null) {
         equipmentIdInput.value = '';
     } else if (mode === 'edit' && id) {
         title.textContent = 'Editar Equipamento';
-        const equipment = equipments.find(e => e.id === id);
+        const equipment = equipamentos.find(e => e.id === id);
         document.getElementById('name').value = equipment.name;
         document.getElementById('type').value = equipment.type;
         document.getElementById('status').value = equipment.status;
@@ -180,23 +180,24 @@ document.getElementById('equipment_form').addEventListener('submit', function(ev
 
     if (id) {
         // Atualizar equipamento existente
-        const index = equipments.findIndex(e => e.id === parseInt(id));
-        equipments[index] = equipment;
+        const index = equipamentos.findIndex(e => e.id === parseInt(id));
+        equipamentos[index] = equipment;
     } else {
         // Adicionar novo equipamento
-        equipments.push(equipment);
+        equipamentos.push(equipment);
     }
 
-    localStorage.setItem('equipments', JSON.stringify(equipments));
+    localStorage.setItem('equipamentos', JSON.stringify(equipamentos));
     carregarListaDeEquipamentos();
     fecharModal();
 });
 
 // Excluir equipamento
 function excluirEquipamento(id) {
+    // crud.excluirEquipamento(id);
     if (confirm('Tem certeza que deseja excluir este equipamento?')) {
-        equipments = equipments.filter(e => e.id !== id);
-        localStorage.setItem('equipments', JSON.stringify(equipments));
+        equipamentos = equipamentos.filter(e => e.id !== id);
+        localStorage.setItem('equipamentos', JSON.stringify(equipamentos));
         carregarListaDeEquipamentos();
     }
 }
