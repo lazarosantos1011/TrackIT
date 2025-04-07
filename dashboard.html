@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrackIT</title>
+    <title>TrackIT - Dashboard</title>
     <link rel="stylesheet" href="./assets/css/reset.css">
     <link rel="stylesheet" href="./assets/css/main.css">
     <link rel="icon" href="./assets/images/TrackIT_icon.ico" type="image/x-icon">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header id="header">
@@ -14,31 +15,56 @@
             <img src="./assets/images/TrackIT_logo.png" alt="Logo do TrackIT" id="logo">
             <h1>TrackIT</h1>
         </div>
-        <button id="logout_btn" onclick="window.location.href='index.html'">Sair</button>
+        <div id="subscription_status">
+            <p>Status da Assinatura: <span id="subscription_label">Ativa</span></p>
+        </div>
+        <button id="logout_btn" onclick="logout()">Sair</button>
     </header>
 
     <main id="dashboard_container">
+        <section class="dashboard_metrics">
+            <h2>Resumo</h2>
+            <div class="charts_container">
+                <div class="chart">
+                    <h3>Resumo Geral</h3>
+                    <canvas id="metrics_chart"></canvas>
+                </div>
+                <div class="chart">
+                    <h3>Disponíveis vs. Em Manutenção</h3>
+                    <canvas id="availability_chart"></canvas>
+                </div>
+            </div>
+        </section>
+
         <section class="dashboard_content">
             <h2>Gerenciamento de Equipamentos</h2>
-            <button id="add_equipment_btn" onclick="openModal('create')">Adicionar Equipamento</button>
+            <div class="actions">
+                <button id="add_equipment_btn" onclick="abrirModal('create')">Adicionar Equipamento</button>
+                <input type="text" id="search_input" placeholder="Buscar por nome ou tipo..." oninput="filtrarEquipamentos()">
+            </div>
             <table id="equipment_table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Tipo</th>
-                        <th>Status</th>
+                        <th onclick="ordernarTabela('id')">ID</th>
+                        <th onclick="ordernarTabela('name')">Nome</th>
+                        <th onclick="ordernarTabela('type')">Tipo</th>
+                        <th onclick="ordernarTabela('status')">Status</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody id="equipment_list"></tbody>
             </table>
+            <div id="pagination">
+                <button onclick="anteriorPagina()">Anterior</button>
+                <span id="page_info"></span>
+                <button onclick="proximaPagina()">Próximo</button>
+            </div>
         </section>
 
         <!-- Modal para cadastro/edição -->
         <div id="equipment_modal" class="modal">
             <div class="modal_content">
-                <span class="close" onclick="closeModal()">&times;</span>
+                <span class="close" onclick="fecharModal()">&times;</span>
                 <h2 id="modal_title">Adicionar Equipamento</h2>
                 <form id="equipment_form">
                     <div class="input">

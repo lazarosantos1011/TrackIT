@@ -1,12 +1,97 @@
 // Dados iniciais (simulação de banco de dados com localStorage)
 let equipments = JSON.parse(localStorage.getItem('equipments')) || [];
 let currentId = equipments.length ? Math.max(...equipments.map(e => e.id)) + 1 : 1;
+let currentPage = 1;
+const itemsPerPage = 5;
+let metricsChart;
+let availabilityChart;
 
-// Função para listar equipamentos na tabela
-function loadEquipmentList() {
+// Função para carregar métricas e atualizar os gráficos
+function carregarMetricas() {
+    const total = equipments.length;
+    const available = equipments.filter(e => e.status === 'Disponível').length;
+    const maintenance = equipments.filter(e => e.status === 'Em Manutenção').length;
+
+    // Atualizar os números no gráfico de barras
+    if (metricsChart) {
+        metricsChart.data.datasets[0].data = [total, available, maintenance];
+        metricsChart.update();
+    }
+
+    // Atualizar os números no gráfico de "roda"
+    if (availabilityChart) {
+        availabilityChart.data.datasets[0].data = [available, maintenance];
+        availabilityChart.update();
+    }
+
+    document.getElementById('total_equipment').textContent = total;
+    document.getElementById('available_equipment').textContent = available;
+    document.getElementById('maintenance_equipment').textContent = maintenance;
+}
+
+// Função para inicializar os gráficos
+function inicializarGraficos() {
+    const metricsCtx = document.getElementById('metrics_chart').getContext('2d');
+    metricsChart = new Chart(metricsCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Total', 'Disponíveis', 'Em Manutenção'],
+            datasets: [{
+                label: 'Equipamentos',
+                data: [0, 0, 0], // Dados iniciais
+                backgroundColor: ['#3498db', '#2ecc71', '#e74c3c'],
+                borderColor: ['#2980b9', '#27ae60', '#c0392b'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    const availabilityCtx = document.getElementById('availability_chart').getContext('2d');
+    availabilityChart = new Chart(availabilityCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Disponíveis', 'Em Manutenção'],
+            datasets: [{
+                label: 'Equipamentos',
+                data: [0, 0], // Dados iniciais
+                backgroundColor: ['#2ecc71', '#e74c3c'],
+                borderColor: ['#27ae60', '#c0392b'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+// Função para listar equipamentos na tabela com paginação
+function carregarListaDeEquipamentos() {
     const tbody = document.getElementById('equipment_list');
     tbody.innerHTML = '';
-    equipments.forEach(equipment => {
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const paginatedEquipments = equipments.slice(start, end);
+
+    paginatedEquipments.forEach(equipment => {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${equipment.id}</td>
@@ -14,16 +99,49 @@ function loadEquipmentList() {
             <td>${equipment.type}</td>
             <td>${equipment.status}</td>
             <td>
-                <button class="edit" onclick="openModal('edit', ${equipment.id})">Editar</button>
-                <button class="delete" onclick="deleteEquipment(${equipment.id})">Excluir</button>
+                <button class="edit" onclick="abrirModal('edit', ${equipment.id})">Editar</button>
+                <button class="delete" onclick="excluirEquipamento(${equipment.id})">Excluir</button>
             </td>
         `;
         tbody.appendChild(row);
     });
+
+    document.getElementById('page_info').textContent = `Página ${currentPage} de ${Math.ceil(equipments.length / itemsPerPage)}`;
+    carregarMetricas();
+}
+
+// Função para buscar equipamentos
+function filtrarEquipamentos() {
+    const query = document.getElementById('search_input').value.toLowerCase();
+    equipments = JSON.parse(localStorage.getItem('equipments')) || [];
+    equipments = equipments.filter(e => e.name.toLowerCase().includes(query) || e.type.toLowerCase().includes(query));
+    currentPage = 1;
+    carregarListaDeEquipamentos();
+}
+
+// Função para ordenar equipamentos
+function ordernarTabela(column) {
+    equipments.sort((a, b) => (a[column] > b[column] ? 1 : -1));
+    carregarListaDeEquipamentos();
+}
+
+// Paginação
+function proximaPagina() {
+    if (currentPage * itemsPerPage < equipments.length) {
+        currentPage++;
+        carregarListaDeEquipamentos();
+    }
+}
+
+function anteriorPagina() {
+    if (currentPage > 1) {
+        currentPage--;
+        carregarListaDeEquipamentos();
+    }
 }
 
 // Abrir o modal para criar ou editar
-function openModal(mode, id = null) {
+function abrirModal(mode, id = null) {
     const modal = document.getElementById('equipment_modal');
     const form = document.getElementById('equipment_form');
     const title = document.getElementById('modal_title');
@@ -45,7 +163,7 @@ function openModal(mode, id = null) {
     }
 }
 
-function closeModal() {
+function fecharModal() {
     document.getElementById('equipment_modal').style.display = 'none';
 }
 
@@ -70,18 +188,28 @@ document.getElementById('equipment_form').addEventListener('submit', function(ev
     }
 
     localStorage.setItem('equipments', JSON.stringify(equipments));
-    loadEquipmentList();
-    closeModal();
+    carregarListaDeEquipamentos();
+    fecharModal();
 });
 
 // Excluir equipamento
-function deleteEquipment(id) {
+function excluirEquipamento(id) {
     if (confirm('Tem certeza que deseja excluir este equipamento?')) {
         equipments = equipments.filter(e => e.id !== id);
         localStorage.setItem('equipments', JSON.stringify(equipments));
-        loadEquipmentList();
+        carregarListaDeEquipamentos();
     }
 }
 
-// Carregar a lista ao abrir o dashboard
-window.onload = loadEquipmentList;
+// Logout
+function logout() {
+    alert('Você saiu com sucesso!');
+    window.location.href = './index.html';
+}
+
+// Inicializar os gráficos ao carregar a página
+window.onload = () => {
+    inicializarGraficos();
+    carregarListaDeEquipamentos();
+    carregarMetricas();
+};
