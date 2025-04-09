@@ -1,5 +1,7 @@
+import { carregarEquipamentos, salvarEquipamentos, excluirEquipamentoPorId } from "./crud.js";
+
 // Dados iniciais (simulação de banco de dados com localStorage)
-let equipamentos = JSON.parse(localStorage.getItem('equipamentos')) || [];
+let equipamentos = carregarEquipamentos();
 let currentId = equipamentos.length ? Math.max(...equipamentos.map(e => e.id)) + 1 : 1;
 let currentPage = 1;
 const itemsPerPage = 5;
@@ -23,10 +25,6 @@ function carregarMetricas() {
         availabilityChart.data.datasets[0].data = [available, maintenance];
         availabilityChart.update();
     }
-
-    document.getElementById('total_equipment').textContent = total;
-    document.getElementById('available_equipment').textContent = available;
-    document.getElementById('maintenance_equipment').textContent = maintenance;
 }
 
 // Função para inicializar os gráficos
@@ -113,11 +111,12 @@ function carregarListaDeEquipamentos() {
 // Função para buscar equipamentos
 function filtrarEquipamentos() {
     const query = document.getElementById('search_input').value.toLowerCase();
-    equipamentos = JSON.parse(localStorage.getItem('equipamentos')) || [];
-    equipamentos = equipamentos.filter(e => e.name.toLowerCase().includes(query) || e.type.toLowerCase().includes(query));
+    equipamentos = carregarEquipamentos().filter(e => 
+        e.name.toLowerCase().includes(query) || e.type.toLowerCase().includes(query)
+    );
     currentPage = 1;
     carregarListaDeEquipamentos();
-}
+};
 
 // Função para ordenar equipamentos
 function ordernarTabela(column) {
@@ -187,17 +186,16 @@ document.getElementById('equipment_form').addEventListener('submit', function(ev
         equipamentos.push(equipment);
     }
 
-    localStorage.setItem('equipamentos', JSON.stringify(equipamentos));
+    salvarEquipamentos(equipamentos);
     carregarListaDeEquipamentos();
     fecharModal();
 });
 
 // Excluir equipamento
 function excluirEquipamento(id) {
-    // crud.excluirEquipamento(id);
     if (confirm('Tem certeza que deseja excluir este equipamento?')) {
-        equipamentos = equipamentos.filter(e => e.id !== id);
-        localStorage.setItem('equipamentos', JSON.stringify(equipamentos));
+        equipamentos = excluirEquipamentoPorId(equipamentos, id);
+        salvarEquipamentos(equipamentos);
         carregarListaDeEquipamentos();
     }
 }
@@ -206,7 +204,7 @@ function excluirEquipamento(id) {
 function logout() {
     alert('Você saiu com sucesso!');
     window.location.href = './index.html';
-}
+};
 
 // Inicializar os gráficos ao carregar a página
 window.onload = () => {
@@ -214,3 +212,11 @@ window.onload = () => {
     carregarListaDeEquipamentos();
     carregarMetricas();
 };
+
+window.logout = logout;
+window.abrirModal = abrirModal;
+window.fecharModal = fecharModal;
+window.excluirEquipamento = excluirEquipamento;
+window.ordernarTabela = ordernarTabela;
+window.proximaPagina = proximaPagina;
+window.anteriorPagina = anteriorPagina;
