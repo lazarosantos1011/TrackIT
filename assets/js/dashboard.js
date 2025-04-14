@@ -111,8 +111,7 @@ function carregarListaDeEquipamentos() {
 // Função para buscar equipamentos
 function filtrarEquipamentos() {
     const query = document.getElementById('search_input').value.toLowerCase();
-    equipamentos = carregarEquipamentos().filter(e => 
-        e.name.toLowerCase().includes(query) || e.type.toLowerCase().includes(query)
+    equipamentos = carregarEquipamentos().filter(e => e.name.toLowerCase().includes(query) || e.type.toLowerCase().includes(query)
     );
     currentPage = 1;
     carregarListaDeEquipamentos();
