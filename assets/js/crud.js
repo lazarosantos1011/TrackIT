@@ -10,4 +10,8 @@ function excluirEquipamentoPorId(equipamentos, id) {
     return equipamentos.filter(e => e.id !== id);
 }
 
-export { carregarEquipamentos, salvarEquipamentos, excluirEquipamentoPorId };
+export { 
+    carregarEquipamentos, 
+    salvarEquipamentos, 
+    excluirEquipamentoPorId 
+};
