@@ -1,33 +1,28 @@
 import { carregarEquipamentos, salvarEquipamentos, excluirEquipamentoPorId } from "./crud.js";
 
-// Dados iniciais (simulação de banco de dados com localStorage)
-let equipamentos = carregarEquipamentos();
-let currentId = equipamentos.length ? Math.max(...equipamentos.map(e => e.id)) + 1 : 1;
+let equipamentos = [];
+let currentId = 1;
 let currentPage = 1;
 const itemsPerPage = 5;
 let metricsChart;
 let availabilityChart;
 
-// Função para carregar métricas e atualizar os gráficos
-function carregarMetricas() {
+async function carregarMetricas() {
     const total = equipamentos.length;
     const available = equipamentos.filter(e => e.status === 'Disponível').length;
     const maintenance = equipamentos.filter(e => e.status === 'Em Manutenção').length;
 
-    // Atualizar os números no gráfico de barras
     if (metricsChart) {
         metricsChart.data.datasets[0].data = [total, available, maintenance];
         metricsChart.update();
     }
 
-    // Atualizar os números no gráfico de "roda"
     if (availabilityChart) {
         availabilityChart.data.datasets[0].data = [available, maintenance];
         availabilityChart.update();
     }
 }
 
-// Função para inicializar os gráficos
 function inicializarGraficos() {
     const metricsCtx = document.getElementById('metrics_chart').getContext('2d');
     metricsChart = new Chart(metricsCtx, {
@@ -36,7 +31,7 @@ function inicializarGraficos() {
             labels: ['Total', 'Disponíveis', 'Em Manutenção'],
             datasets: [{
                 label: 'Equipamentos',
-                data: [0, 0, 0], // Dados iniciais
+                data: [0, 0, 0],
                 backgroundColor: ['#3498db', '#2ecc71', '#e74c3c'],
                 borderColor: ['#2980b9', '#27ae60', '#c0392b'],
                 borderWidth: 1
@@ -44,16 +39,8 @@ function inicializarGraficos() {
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
         }
     });
 
@@ -64,7 +51,7 @@ function inicializarGraficos() {
             labels: ['Disponíveis', 'Em Manutenção'],
             datasets: [{
                 label: 'Equipamentos',
-                data: [0, 0], // Dados iniciais
+                data: [0, 0],
                 backgroundColor: ['#2ecc71', '#e74c3c'],
                 borderColor: ['#27ae60', '#c0392b'],
                 borderWidth: 1
@@ -72,24 +59,20 @@ function inicializarGraficos() {
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
+            plugins: { legend: { position: 'bottom' } }
         }
     });
 }
 
-// Função para listar equipamentos na tabela com paginação
-function carregarListaDeEquipamentos() {
+async function carregarListaDeEquipamentos() {
     const tbody = document.getElementById('equipment_list');
     tbody.innerHTML = '';
+
     const start = (currentPage - 1) * itemsPerPage;
     const end = start + itemsPerPage;
-    const paginatedequipamentos = equipamentos.slice(start, end);
+    const paginated = equipamentos.slice(start, end);
 
-    paginatedequipamentos.forEach(equipment => {
+    for (const equipment of paginated) {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${equipment.id}</td>
@@ -102,28 +85,25 @@ function carregarListaDeEquipamentos() {
             </td>
         `;
         tbody.appendChild(row);
-    });
+    }
 
     document.getElementById('page_info').textContent = `Página ${currentPage} de ${Math.ceil(equipamentos.length / itemsPerPage)}`;
-    carregarMetricas();
+    await carregarMetricas();
 }
 
-// Função para buscar equipamentos
-function filtrarEquipamentos() {
+async function filtrarEquipamentos() {
     const query = document.getElementById('search_input').value.toLowerCase();
-    equipamentos = carregarEquipamentos().filter(e => e.name.toLowerCase().includes(query) || e.type.toLowerCase().includes(query)
-    );
+    const all = await carregarEquipamentos();
+    equipamentos = all.filter(e => e.name.toLowerCase().includes(query) || e.type.toLowerCase().includes(query));
     currentPage = 1;
-    carregarListaDeEquipamentos();
-};
+    await carregarListaDeEquipamentos();
+}
 
-// Função para ordenar equipamentos
 function ordernarTabela(column) {
     equipamentos.sort((a, b) => (a[column] > b[column] ? 1 : -1));
     carregarListaDeEquipamentos();
 }
 
-// Paginação
 function proximaPagina() {
     if (currentPage * itemsPerPage < equipamentos.length) {
         currentPage++;
@@ -138,7 +118,6 @@ function anteriorPagina() {
     }
 }
 
-// Abrir o modal para criar ou editar
 function abrirModal(mode, id = null) {
     const modal = document.getElementById('equipment_modal');
     const form = document.getElementById('equipment_form');
@@ -154,6 +133,7 @@ function abrirModal(mode, id = null) {
     } else if (mode === 'edit' && id) {
         title.textContent = 'Editar Equipamento';
         const equipment = equipamentos.find(e => e.id === id);
+        if (!equipment) return;
         document.getElementById('name').value = equipment.name;
         document.getElementById('type').value = equipment.type;
         document.getElementById('status').value = equipment.status;
@@ -165,51 +145,49 @@ function fecharModal() {
     document.getElementById('equipment_modal').style.display = 'none';
 }
 
-// Salvar equipamento (criar ou atualizar)
-document.getElementById('equipment_form').addEventListener('submit', function(event) {
+document.getElementById('equipment_form').addEventListener('submit', async function(event) {
     event.preventDefault();
+
     const id = document.getElementById('equipment_id').value;
     const equipment = {
-        id: id ? parseInt(id) : currentId++,
+        id: id ? parseInt(id) : null,
         name: document.getElementById('name').value,
         type: document.getElementById('type').value,
         status: document.getElementById('status').value
     };
 
     if (id) {
-        // Atualizar equipamento existente
         const index = equipamentos.findIndex(e => e.id === parseInt(id));
         equipamentos[index] = equipment;
     } else {
-        // Adicionar novo equipamento
         equipamentos.push(equipment);
     }
 
-    salvarEquipamentos(equipamentos);
-    carregarListaDeEquipamentos();
+    await salvarEquipamentos([equipment]);
+    equipamentos = await carregarEquipamentos();
+    await carregarListaDeEquipamentos();
     fecharModal();
 });
 
-// Excluir equipamento
-function excluirEquipamento(id) {
+async function excluirEquipamento(id) {
     if (confirm('Tem certeza que deseja excluir este equipamento?')) {
-        equipamentos = excluirEquipamentoPorId(equipamentos, id);
-        salvarEquipamentos(equipamentos);
-        carregarListaDeEquipamentos();
+        await excluirEquipamentoPorId(id);
+        equipamentos = await carregarEquipamentos();
+        await carregarListaDeEquipamentos();
     }
 }
 
-// Logout
 function logout() {
     alert('Você saiu com sucesso!');
     window.location.href = './index.html';
-};
+}
 
-// Inicializar os gráficos ao carregar a página
-window.onload = () => {
+window.onload = async () => {
     inicializarGraficos();
-    carregarListaDeEquipamentos();
-    carregarMetricas();
+    equipamentos = await carregarEquipamentos();
+    currentId = equipamentos.length ? Math.max(...equipamentos.map(e => e.id)) + 1 : 1;
+    await carregarListaDeEquipamentos();
+    await carregarMetricas();
 };
 
 window.logout = logout;
@@ -219,3 +197,4 @@ window.excluirEquipamento = excluirEquipamento;
 window.ordernarTabela = ordernarTabela;
 window.proximaPagina = proximaPagina;
 window.anteriorPagina = anteriorPagina;
+window.filtrarEquipamentos = filtrarEquipamentos;
