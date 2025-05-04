@@ -10,7 +10,7 @@ function entrar() {
     campo_senha = document.getElementById("senha").value;
     if (campo_email == emailCorreto && campo_senha == senhaCorreta) {
         alert("Login realizado com sucesso!");
-        window.location.href = "./dashboard.html";
+        window.location.href = "./dashboard";
     } else {
         alert("Email ou senha incorretos!");
     }
