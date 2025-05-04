@@ -179,7 +179,7 @@ async function excluirEquipamento(id) {
 
 function logout() {
     alert('Você saiu com sucesso!');
-    window.location.href = './index.html';
+    window.location.href = './';
 }
 
 window.onload = async () => {

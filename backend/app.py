@@ -1,11 +1,26 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../assets')
 CORS(app)
 
 equipamentos = []
 current_id = 1
+
+# Rota para servir o index.html
+@app.route('/')
+def index():
+    return send_from_directory('../', 'index.html')
+
+# Rota para servir o dashboard.html
+@app.route('/dashboard')
+def dashboard():
+    return send_from_directory('../', 'dashboard.html')
+
+# Rota para servir os arquivos estáticos (CSS, JS, imagens...)
+@app.route('/assets/<path:path>')
+def serve_assets(path):
+    return send_from_directory(app.static_folder, path)
 
 @app.route('/equipamentos', methods=['GET'])
 def listar_equipamentos():
@@ -42,6 +57,13 @@ def excluir_equipamento(id):
     global equipamentos
     equipamentos = [e for e in equipamentos if e['id'] != id]
     return jsonify({'msg': 'Removido'}), 204
+
+# Rota para capturar todas as rotas desconhecidas e redirecionar para o index.html
+@app.route('/<path:path>')
+def catch_all(path):
+    if path == "dashboard":
+        return send_from_directory('../', 'dashboard.html')
+    return send_from_directory('../', 'index.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
