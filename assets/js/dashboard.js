@@ -76,8 +76,8 @@ async function carregarListaDeEquipamentos() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${equipment.id}</td>
-            <td>${equipment.name}</td>
-            <td>${equipment.type}</td>
+            <td>${equipment.nome}</td>
+            <td>${equipment.tipo}</td>
             <td>${equipment.status}</td>
             <td>
                 <button class="edit" onclick="abrirModal('edit', ${equipment.id})">Editar</button>
@@ -94,7 +94,7 @@ async function carregarListaDeEquipamentos() {
 async function filtrarEquipamentos() {
     const query = document.getElementById('search_input').value.toLowerCase();
     const all = await carregarEquipamentos();
-    equipamentos = all.filter(e => e.name.toLowerCase().includes(query) || e.type.toLowerCase().includes(query));
+    equipamentos = all.filter(e => e.nome.toLowerCase().includes(query) || e.tipo.toLowerCase().includes(query));
     currentPage = 1;
     await carregarListaDeEquipamentos();
 }
@@ -134,8 +134,8 @@ function abrirModal(mode, id = null) {
         title.textContent = 'Editar Equipamento';
         const equipment = equipamentos.find(e => e.id === id);
         if (!equipment) return;
-        document.getElementById('name').value = equipment.name;
-        document.getElementById('type').value = equipment.type;
+        document.getElementById('nome').value = equipment.nome;
+        document.getElementById('tipo').value = equipment.tipo;
         document.getElementById('status').value = equipment.status;
         equipmentIdInput.value = id;
     }
@@ -151,8 +151,8 @@ document.getElementById('equipment_form').addEventListener('submit', async funct
     const id = document.getElementById('equipment_id').value;
     const equipment = {
         id: id ? parseInt(id) : null,
-        name: document.getElementById('name').value,
-        type: document.getElementById('type').value,
+        nome: document.getElementById('nome').value,
+        tipo: document.getElementById('tipo').value,
         status: document.getElementById('status').value
     };
 

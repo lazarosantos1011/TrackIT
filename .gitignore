@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg
+*.egg-info/
+dist/
+build/
+env/
+venv/
+ENV/
+*.sqlite3
+*.db
+
+# Flask instance folder
+instance/
+*.log
+
+# Virtual environment (geral)
+.venv/
+.env/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# VSCode
+.vscode/
+
+# PyCharm
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Node (caso use npm/yarn para frontend)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Frontend build
+*.min.js
+*.map
+/build/
+/dist/
+
+# Cache
+.cache/
+*.tmp
