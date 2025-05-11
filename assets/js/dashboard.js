@@ -99,7 +99,7 @@ async function filtrarEquipamentos() {
     await carregarListaDeEquipamentos();
 }
 
-function ordernarTabela(column) {
+function ordenarTabela(column) {
     equipamentos.sort((a, b) => (a[column] > b[column] ? 1 : -1));
     carregarListaDeEquipamentos();
 }
@@ -194,7 +194,7 @@ window.logout = logout;
 window.abrirModal = abrirModal;
 window.fecharModal = fecharModal;
 window.excluirEquipamento = excluirEquipamento;
-window.ordernarTabela = ordernarTabela;
+window.ordenarTabela = ordenarTabela;
 window.proximaPagina = proximaPagina;
 window.anteriorPagina = anteriorPagina;
 window.filtrarEquipamentos = filtrarEquipamentos;
